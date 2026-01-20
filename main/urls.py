@@ -3,6 +3,7 @@ from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import redirect # Added this for the redirect
+from django.urls import path, include
 
 # Simple function to handle the empty home page
 def home_redirect(request):
@@ -11,6 +12,8 @@ def home_redirect(request):
 urlpatterns = [
     path("", home_redirect, name="home"), # This fixes the 404 error
     path("admin/", admin.site.urls),
+    path("admin/", admin.site.urls),
+    path("auth/", include("tables.urls"),
     path("auth/", include("apis.urls")),
 ]
 
