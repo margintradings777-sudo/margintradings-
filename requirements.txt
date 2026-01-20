@@ -5,3 +5,4 @@ django-filter
 pillow
 gunicorn
 whitenoise
+dj_database_url
