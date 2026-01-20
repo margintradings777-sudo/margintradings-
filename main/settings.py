@@ -43,7 +43,7 @@ INSTALLED_APPS = [
 ]
 
 # --------------------------------------------------
-# MIDDLEWARE (ORDER IS VERY IMPORTANT)
+# MIDDLEWARE (ORDER VERY IMPORTANT)
 # --------------------------------------------------
 
 MIDDLEWARE = [
@@ -86,7 +86,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "main.wsgi.application"
 
 # --------------------------------------------------
-# DATABASE (PostgreSQL — Render)
+# DATABASE (PostgreSQL - Render)
 # --------------------------------------------------
 
 DATABASES = {
@@ -98,7 +98,7 @@ DATABASES = {
 }
 
 # --------------------------------------------------
-# AUTH / PASSWORDS
+# PASSWORD VALIDATION
 # --------------------------------------------------
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -133,7 +133,39 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # --------------------------------------------------
-# CORS + CSRF + SESSION
+# RENDER / HTTPS FIX
+# --------------------------------------------------
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SECURE_SSL_REDIRECT = True
+
+# --------------------------------------------------
+# SESSION FIX (LOGIN ISSUE SOLVED)
+# --------------------------------------------------
+
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
+SESSION_SAVE_EVERY_REQUEST = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+
+SESSION_COOKIE_SAMESITE = "None"
+SESSION_COOKIE_SECURE = True
+
+# --------------------------------------------------
+# CSRF FIX (REACT + DJANGO)
+# --------------------------------------------------
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://margintradings.in",
+    "https://www.margintradings.in",
+    "https://696cc85c5cbdd589e335890c--friendly-madeleine-935be3.netlify.app",
+]
+
+CSRF_COOKIE_SAMESITE = "None"
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_HTTPONLY = False
+
+# --------------------------------------------------
+# CORS FIX
 # --------------------------------------------------
 
 CORS_ALLOW_CREDENTIALS = True
@@ -144,15 +176,17 @@ CORS_ALLOWED_ORIGINS = [
     "https://696cc85c5cbdd589e335890c--friendly-madeleine-935be3.netlify.app",
 ]
 
-CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS
-
-SESSION_ENGINE = "django.contrib.sessions.backends.db"
-
-SESSION_COOKIE_SAMESITE = "None"
-SESSION_COOKIE_SECURE = True
-
-CSRF_COOKIE_SAMESITE = "None"
-CSRF_COOKIE_SECURE = True
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
 
 # --------------------------------------------------
 # REST FRAMEWORK
