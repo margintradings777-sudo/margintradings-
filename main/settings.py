@@ -1,10 +1,6 @@
 from pathlib import Path
 import os
 
-# =========================
-# BASE
-# =========================
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # =========================
@@ -61,6 +57,95 @@ MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+]
+
+# =========================
+# URL / WSGI
+# =========================
+
+ROOT_URLCONF = "main.urls"
+
+TEMPLATES = [
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+            ],
+        },
+    },
+]
+
+WSGI_APPLICATION = "main.wsgi.application"
+
+# =========================
+# DATABASE (FREE RENDER SQLITE)
+# =========================
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    }
+}
+
+# =========================
+# INTERNATIONALIZATION
+# =========================
+
+LANGUAGE_CODE = "en-us"
+TIME_ZONE = "UTC"
+USE_I18N = True
+USE_TZ = True
+
+# =========================
+# REST FRAMEWORK
+# =========================
+
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.AllowAny",
+    ],
+}
+
+# =========================
+# CORS / CSRF
+# =========================
+
+CORS_ALLOWED_ORIGINS = [
+    "https://margintradings.in",
+    "https://www.margintradings.in",
+]
+
+CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS
+CORS_ALLOW_CREDENTIALS = True
+
+# =========================
+# STATIC FILES
+# =========================
+
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "static"
+
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+# =========================
+# DEFAULT PK
+# =========================
+
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+IMPORT_EXPORT_USE_TRANSACTIONS = True
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
