@@ -5,9 +5,6 @@ from django.http import JsonResponse
 import json
 
 
-# =========================
-# LOGIN API (ADMIN + FRONTEND USERS)
-# =========================
 @csrf_exempt
 def login_view(request):
     if request.method != "POST":
@@ -16,49 +13,32 @@ def login_view(request):
     try:
         data = json.loads(request.body)
 
-        email = data.get("Email") or data.get("email")
-        password = data.get("Password") or data.get("password")
+        username = data.get("username")
+        password = data.get("password")
 
-        if not email or not password:
+        if not username or not password:
             return JsonResponse(
-                {"message": "Email and password required"},
+                {"message": "Username and password required"},
                 status=400
             )
 
-        # 🔥 Step 1: Email se user nikaalo (ADMIN ya REGISTERED)
-        try:
-            user_obj = User.objects.get(email=email)
-        except User.DoesNotExist:
-            return JsonResponse(
-                {"message": "Invalid email or password"},
-                status=401
-            )
-
-        # 🔥 Step 2: Username se authenticate
-        user = authenticate(
-            username=user_obj.username,
-            password=password
-        )
+        user = authenticate(username=username, password=password)
 
         if user is None:
             return JsonResponse(
-                {"message": "Invalid email or password"},
+                {"message": "Invalid username or password"},
                 status=401
             )
 
         return JsonResponse({
             "user_id": user.id,
-            "name": user.username,
-            "email": user.email,
+            "username": user.username,
         })
 
     except Exception as e:
         return JsonResponse({"message": str(e)}, status=500)
 
 
-# =========================
-# REGISTER API
-# =========================
 @csrf_exempt
 def register_view(request):
     if request.method != "POST":
@@ -67,27 +47,23 @@ def register_view(request):
     try:
         data = json.loads(request.body)
 
-        name = data.get("Name")
-        email = data.get("Email")
-        password = data.get("Password")
+        username = data.get("username")
+        password = data.get("password")
 
-        if not name or not email or not password:
+        if not username or not password:
             return JsonResponse(
-                {"message": "All fields required"},
+                {"message": "Username and password required"},
                 status=400
             )
 
-        # Email unique
-        if User.objects.filter(email=email).exists():
+        if User.objects.filter(username=username).exists():
             return JsonResponse(
-                {"message": "Email already exists"},
+                {"message": "Username already exists"},
                 status=400
             )
 
-        # Username = email (SAFE PRACTICE)
         user = User.objects.create_user(
-            username=email,
-            email=email,
+            username=username,
             password=password
         )
 
