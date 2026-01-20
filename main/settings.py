@@ -2,143 +2,215 @@ from pathlib import Path
 import os
 import dj_database_url
 
-# =========================
+# --------------------------------------------------
+
 # BASE
-# =========================
-BASE_DIR = Path(__file__).resolve().parent.parent
 
-# =========================
+# --------------------------------------------------
+
+BASE_DIR = Path(**file**).resolve().parent.parent
+
+# --------------------------------------------------
+
 # SECURITY
-# =========================
-SECRET_KEY = os.environ.get("SECRET_KEY", "unsafe-secret-key")
 
-DEBUG = os.environ.get("DEBUG", "False") == "True"
+# --------------------------------------------------
+
+SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-change-this")
+DEBUG = False
 
 ALLOWED_HOSTS = [
-    "margintradings.in",
-    "www.margintradings.in",
-    ".onrender.com",
-    "localhost",
-    "127.0.0.1",
+"margintradings-backend.onrender.com",
+"margintradings.in",
+"[www.margintradings.in](http://www.margintradings.in)",
 ]
 
-if not DEBUG:
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+# --------------------------------------------------
 
-# =========================
-# APPLICATIONS
-# =========================
+# APPS
+
+# --------------------------------------------------
+
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+"django.contrib.admin",
+"django.contrib.auth",
+"django.contrib.contenttypes",
+"django.contrib.sessions",
+"django.contrib.messages",
+"django.contrib.staticfiles",
 
-    'corsheaders',
-    'rest_framework',
-    'django_filters',
-    'import_export',
+```
+# third-party
+"rest_framework",
+"corsheaders",
+"import_export",
 
-    'apis',
-    'tables',
+# local apps
+"tables",
+```
+
 ]
 
-# =========================
-# MIDDLEWARE
-# =========================
+# --------------------------------------------------
+
+# MIDDLEWARE (ORDER IS VERY IMPORTANT)
+
+# --------------------------------------------------
+
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+"django.middleware.security.SecurityMiddleware",
+"whitenoise.middleware.WhiteNoiseMiddleware",
 
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+```
+"corsheaders.middleware.CorsMiddleware",
+
+"django.contrib.sessions.middleware.SessionMiddleware",
+"django.middleware.common.CommonMiddleware",
+"django.middleware.csrf.CsrfViewMiddleware",
+
+"django.contrib.auth.middleware.AuthenticationMiddleware",
+"django.contrib.messages.middleware.MessageMiddleware",
+"django.middleware.clickjacking.XFrameOptionsMiddleware",
+```
+
 ]
 
-# =========================
-# URL / WSGI
-# =========================
-ROOT_URLCONF = 'main.urls'
+# --------------------------------------------------
+
+# URLS / WSGI
+
+# --------------------------------------------------
+
+ROOT_URLCONF = "main.urls"
 
 TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-            ],
-        },
-    },
+{
+"BACKEND": "django.template.backends.django.DjangoTemplates",
+"DIRS": [BASE_DIR / "templates"],
+"APP_DIRS": True,
+"OPTIONS": {
+"context_processors": [
+"django.template.context_processors.debug",
+"django.template.context_processors.request",
+"django.contrib.auth.context_processors.auth",
+"django.contrib.messages.context_processors.messages",
+],
+},
+},
 ]
 
-WSGI_APPLICATION = 'main.wsgi.application'
+WSGI_APPLICATION = "main.wsgi.application"
 
-# =========================
-# DATABASE (POSTGRES - RENDER)
-# =========================
+# --------------------------------------------------
+
+# DATABASE (PostgreSQL — Render)
+
+# --------------------------------------------------
+
 DATABASES = {
-    "default": dj_database_url.parse(
-        os.environ.get("DATABASE_URL"),
-        conn_max_age=600,
-        ssl_require=True
-    )
+"default": dj_database_url.config(
+default=os.environ.get("DATABASE_URL"),
+conn_max_age=600,
+ssl_require=True,
+)
 }
 
-# =========================
-# INTERNATIONALIZATION
-# =========================
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+# --------------------------------------------------
+
+# AUTH / PASSWORDS
+
+# --------------------------------------------------
+
+AUTH_PASSWORD_VALIDATORS = [
+{"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+{"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+{"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+{"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+]
+
+# --------------------------------------------------
+
+# LANGUAGE / TIME
+
+# --------------------------------------------------
+
+LANGUAGE_CODE = "en-us"
+TIME_ZONE = "Asia/Kolkata"
 USE_I18N = True
 USE_TZ = True
 
-# =========================
-# REST FRAMEWORK
-# =========================
-REST_FRAMEWORK = {
-    "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.AllowAny",
-    ],
-}
+# --------------------------------------------------
 
-# =========================
-# CORS / CSRF
-# =========================
-CORS_ALLOWED_ORIGINS = [
-    "https://margintradings.in",
-    "https://www.margintradings.in",
-    "https://margintradings-backend.onrender.com",
-]
-
-CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS
-CORS_ALLOW_CREDENTIALS = True
-
-# =========================
 # STATIC FILES
-# =========================
+
+# --------------------------------------------------
+
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "static"
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+# --------------------------------------------------
 
-# =========================
-# DEFAULT PK
-# =========================
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# DEFAULTS
 
-IMPORT_EXPORT_USE_TRANSACTIONS = True
+# --------------------------------------------------
+
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# --------------------------------------------------
+
+# 🔥 CORS + CSRF + SESSION (MAIN FIX)
+
+# --------------------------------------------------
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOWED_ORIGINS = [
+"[https://margintradings.in](https://margintradings.in)",
+"[https://www.margintradings.in](https://www.margintradings.in)",
+"[https://696cc85c5cbdd589e335890c--friendly-madeleine-935be3.netlify.app](https://696cc85c5cbdd589e335890c--friendly-madeleine-935be3.netlify.app)",
+]
+
+CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS
+
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
+
+SESSION_COOKIE_SAMESITE = "None"
+SESSION_COOKIE_SECURE = True
+
+CSRF_COOKIE_SAMESITE = "None"
+CSRF_COOKIE_SECURE = True
+
+# --------------------------------------------------
+
+# REST FRAMEWORK (Session based auth)
+
+# --------------------------------------------------
+
+REST_FRAMEWORK = {
+"DEFAULT_AUTHENTICATION_CLASSES": [
+"rest_framework.authentication.SessionAuthentication",
+],
+"DEFAULT_PERMISSION_CLASSES": [
+"rest_framework.permissions.AllowAny",
+],
+}
+
+# --------------------------------------------------
+
+# LOGGING (OPTIONAL — SAFE)
+
+# --------------------------------------------------
+
+LOGGING = {
+"version": 1,
+"disable_existing_loggers": False,
+"handlers": {
+"console": {"class": "logging.StreamHandler"},
+},
+"root": {
+"handlers": ["console"],
+"level": "INFO",
+},
+}
