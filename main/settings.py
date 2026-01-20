@@ -26,6 +26,13 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
 ]
 
+# Production Security Headers
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
 # =========================
 # APPLICATIONS
 # =========================
@@ -53,10 +60,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-
     # REQUIRED for admin CSS on Render
     'whitenoise.middleware.WhiteNoiseMiddleware',
-
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -96,8 +101,8 @@ DATABASES = {
     'default': dj_database_url.config(
         default=os.environ.get("DATABASE_URL", f"sqlite:///{BASE_DIR}/db.sqlite3"),
         conn_max_age=600,
-        # Set to False to prevent 'sslmode' errors on local SQLite
-        ssl_require=False, 
+        # Set to True in production to ensure SSL encryption for Postgres
+        ssl_require=not DEBUG, 
     )
 }
 
@@ -128,6 +133,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://margintradings.in",
     "https://www.margintradings.in",
     "https://696cc85c5cbdd589e335890c--friendly-madeleine-935be3.netlify.app",
+    "https://margintradings-.onrender.com",
 ]
 
 CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS
