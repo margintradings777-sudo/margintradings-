@@ -1,74 +1,37 @@
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 from django.contrib.auth.models import User
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-import json
 
+class UserRegistrationView(APIView):
+    def post(self, request):
+        data = request.data
 
-@csrf_exempt
-def login_view(request):
-    if request.method != "POST":
-        return JsonResponse({"message": "POST method required"}, status=405)
+        name = data.get("Name")
+        email = data.get("Email")
+        password = data.get("Password")
+        phone = data.get("Phone")
+        pan = data.get("Pan")
+        account = data.get("Account_No")
+        ifsc = data.get("IFSC_code")
 
-    data = json.loads(request.body)
-    email = data.get("Email")
-    password = data.get("Password")
+        if not all([name, email, password]):
+            return Response({"message": "Missing fields"}, status=400)
 
-    try:
-        user = User.objects.get(email=email)
-        if not user.check_password(password):
-            raise User.DoesNotExist
-    except User.DoesNotExist:
-        return JsonResponse({"message": "Invalid credentials"}, status=401)
+        if User.objects.filter(email=email).exists():
+            return Response({"message": "Email already exists"}, status=400)
 
-    return JsonResponse({
-        "user_id": user.id,
-        "name": user.username,
-        "email": user.email,
-    })
+        user = User.objects.create_user(
+            username=name,
+            email=email,
+            password=password
+        )
 
-
-@csrf_exempt
-def register_view(request):
-    if request.method != "POST":
-        return JsonResponse({"message": "POST method required"}, status=405)
-
-    name = request.POST.get("Name")
-    email = request.POST.get("Email")
-    password = request.POST.get("Password")
-    phone = request.POST.get("Phone")
-    pan = request.POST.get("PAN")
-    account = request.POST.get("AccountNumber")
-    ifsc = request.POST.get("IFSC")
-
-    if not all([name, email, password]):
-        return JsonResponse({"message": "Missing fields"}, status=400)
-
-        return JsonResponse({"message": "Email already exists"}, status=400)
-
-    user = User.objects.create_user(
-        username=name,
-        email=email,
-        password=password
-    )
-
-    return JsonResponse({
-        "message": "User created",
-        "user_id": user.id,
-        "phone": phone,
-        "pan": pan,
-        "account": account,
-        "ifsc": ifsc
-    })
-
-
-def profile_view(request, user_id):
-    try:
-        user = User.objects.get(id=user_id)
-    except User.DoesNotExist:
-        return JsonResponse({"message": "User not found"}, status=404)
-
-    return JsonResponse({
-        "Name": user.username,
-        "Email": user.email,
-        "Phone": "",
-    })
+        return Response({
+            "message": "User created",
+            "user_id": user.id,
+            "phone": phone,
+            "pan": pan,
+            "account": account,
+            "ifsc": ifsc,
+        }, status=201)
