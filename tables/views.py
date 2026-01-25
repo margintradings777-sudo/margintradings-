@@ -35,6 +35,13 @@ def register_view(request):
     name = request.POST.get("Name")
     email = request.POST.get("Email")
     password = request.POST.get("Password")
+    phone = request.POST.get("Phone")
+    pan = request.POST.get("PAN")
+    account = request.POST.get("AccountNumber")
+    ifsc = request.POST.get("IFSC")
+
+    if not all([name, email, password]):
+        return JsonResponse({"message": "Missing fields"}, status=400)
 
     if User.objects.filter(email=email).exists():
         return JsonResponse({"message": "Email already exists"}, status=400)
@@ -47,7 +54,11 @@ def register_view(request):
 
     return JsonResponse({
         "message": "User created",
-        "user_id": user.id
+        "user_id": user.id,
+        "phone": phone,
+        "pan": pan,
+        "account": account,
+        "ifsc": ifsc
     })
 
 
