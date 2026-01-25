@@ -43,7 +43,6 @@ def register_view(request):
     if not all([name, email, password]):
         return JsonResponse({"message": "Missing fields"}, status=400)
 
-    if User.objects.filter(email=email).exists():
         return JsonResponse({"message": "Email already exists"}, status=400)
 
     user = User.objects.create_user(
