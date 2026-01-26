@@ -4,34 +4,32 @@ from rest_framework import status
 from django.contrib.auth.models import User
 
 class UserRegistrationView(APIView):
-    def post(self, request):
-        data = request.data
+    @csrf_exempt
+def register_view(request):
+    if request.method != "POST":
+        return JsonResponse({"message": "POST method required"}, status=405)
 
-        name = data.get("Name")
-        email = data.get("Email")
-        password = data.get("Password")
-        phone = data.get("Phone")
-        pan = data.get("Pan")
-        account = data.get("Account_No")
-        ifsc = data.get("IFSC_code")
+    name = request.POST.get("Name")
+    email = request.POST.get("Email")
+    password = request.POST.get("Password")
+    phone = request.POST.get("Phone")
+    pan = request.POST.get("Pan")
+    account = request.POST.get("Account_No")
+    ifsc = request.POST.get("IFSC_code")
 
-        if not all([name, email, password]):
-            return Response({"message": "Missing fields"}, status=400)
+    if not all([name, email, password, phone, pan, account, ifsc]):
+        return JsonResponse({"message": "Missing fields"}, status=400)
 
-        if User.objects.filter(email=email).exists():
-            return Response({"message": "Email already exists"}, status=400)
+    if User.objects.filter(email=email).exists():
+        return JsonResponse({"message": "Email already exists"}, status=400)
 
-        user = User.objects.create_user(
-            username=name,
-            email=email,
-            password=password
-        )
+    user = User.objects.create_user(
+        username=name,
+        email=email,
+        password=password
+    )
 
-        return Response({
-            "message": "User created",
-            "user_id": user.id,
-            "phone": phone,
-            "pan": pan,
-            "account": account,
-            "ifsc": ifsc,
-        }, status=201)
+    return JsonResponse({
+        "message": "User created",
+        "user_id": user.id,
+    })
