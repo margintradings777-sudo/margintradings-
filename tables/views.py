@@ -1,13 +1,40 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
 from django.contrib.auth.models import User
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
 
-class UserRegistrationView(APIView):
-    @csrf_exempt
+
+@csrf_exempt
+def login_view(request):
+    if request.method != "POST":
+        return JsonResponse({"message": "POST method required"}, status=405)
+
+    import json
+    data = json.loads(request.body)
+
+    email = data.get("Email")
+    password = data.get("Password")
+
+    try:
+        user = User.objects.get(email=email)
+        if not user.check_password(password):
+            raise User.DoesNotExist
+    except User.DoesNotExist:
+        return JsonResponse({"message": "Invalid credentials"}, status=401)
+
+    return JsonResponse({
+        "user_id": user.id,
+        "name": user.username,
+        "email": user.email,
+    })
+
+
+@csrf_exempt
 def register_view(request):
     if request.method != "POST":
         return JsonResponse({"message": "POST method required"}, status=405)
+
+    print("POST:", request.POST)
+    print("FILES:", request.FILES)
 
     name = request.POST.get("Name")
     email = request.POST.get("Email")
@@ -32,4 +59,17 @@ def register_view(request):
     return JsonResponse({
         "message": "User created",
         "user_id": user.id,
+    })
+
+
+def profile_view(request, user_id):
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return JsonResponse({"message": "User not found"}, status=404)
+
+    return JsonResponse({
+        "Name": user.username,
+        "Email": user.email,
+        "Phone": "",
     })
