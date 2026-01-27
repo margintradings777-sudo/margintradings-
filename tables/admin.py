@@ -1,37 +1,22 @@
 from django.contrib import admin
-from .models import UserDetail, Deposit, Withdrawal, DepositAccountDetails
+from .models import UserDetail, Deposit, withdrawal
 
-
-@admin.register(Deposit)
-class DepositAdmin(admin.ModelAdmin):
-    pass
+@admin.register(UserDetail)
+class UserDetailAdmin(admin.ModelAdmin):
     list_display = ("id", "Name", "Email", "Phone", "Pan", "Account_No", "IFSC_code", "Account_Balance")
     search_fields = ("Name", "Email", "Phone", "Pan")
     list_filter = ("IFSC_code",)
 
-    # edit screen pe easy banane ke liye
-    readonly_fields = ("id",)
-
-    fieldsets = (
-        ("Basic", {"fields": ("Name", "Email", "Phone", "Password")}),
-        ("KYC", {"fields": ("Pan", "Pan_card_Image")}),
-        ("Bank", {"fields": ("Account_No", "IFSC_code", "Cancel_cheque_or_bank_statement")}),
-        ("Wallet", {"fields": ("Account_Balance",)}),
-    )
-
-
-
-
-
 @admin.register(Deposit)
-class DepositAdmin(ImportExportModelAdmin):
-    list_display = ('BankName', 'QR')
-    search_fields = ('BankName',)
+class DepositAdmin(admin.ModelAdmin):
+    list_display = ("id", "user", "BankName", "QR")
+    search_fields = ("BankName", "user__Email")
 
 @admin.register(withdrawal)
-class withdrawalAdmin(ImportExportModelAdmin):
-    list_display = ('Name', 'Amount', 'Status')
-    search_fields = ('Name', 'Amount', 'Status')
+class WithdrawalAdmin(admin.ModelAdmin):
+    list_display = ("id", "user", "Name", "Amount", "Status")
+    search_fields = ("Name", "user__Email")
+    list_filter = ("Status",)
 
 @admin.register(DepositAccountDetails)
 class DepositAccountDetailsAdmin(ImportExportModelAdmin):
