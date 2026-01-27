@@ -45,21 +45,22 @@ def register_view(request):
     if request.method != "POST":
         return JsonResponse({"message": "POST method required"}, status=405)
 
-    print("POST:", request.POST)
-    print("FILES:", request.FILES)
-
     name = request.POST.get("Name")
     email = request.POST.get("Email")
     password = request.POST.get("Password")
     phone = request.POST.get("Phone")
     pan = request.POST.get("Pan")
-    account = request.POST.get("Account_No")
-    ifsc = request.POST.get("IFSC_code")
+    account_no = request.POST.get("Account_No")
+    ifsc_code = request.POST.get("IFSC_code")
 
-    if not all([name, email, password, phone, pan, account, ifsc]):
+    pan_img = request.FILES.get("Pan_card_Image")
+    bank_doc = request.FILES.get("Cancel_cheque_or_bank_statement")
+
+    # basic validation
+    if not all([name, email, password, phone, pan, account_no, ifsc_code, pan_img, bank_doc]):
         return JsonResponse({"message": "Missing fields"}, status=400)
 
-    if User.objects.filter(email=email).exists():
+    if UserDetail.objects.filter(Email=email).exists():
         return JsonResponse({"message": "Email already exists"}, status=400)
 
     user = UserDetail.objects.create(
@@ -75,7 +76,6 @@ def register_view(request):
     )
 
     return JsonResponse({"message": "User created", "user_id": user.id})
-    })
 
 
 def profile_view(request, user_id):
