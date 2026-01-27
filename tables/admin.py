@@ -1,22 +1,31 @@
 from django.contrib import admin
-from .models import UserDetail, Deposit, withdrawal
+from import_export import resources
+from import_export.admin import ImportExportModelAdmin
+from .models import Deposit
+from .models import withdrawal, UserDetail, DepositAccountDetails
+
+class UserDetailResource(resources.ModelResource):
+    class Meta:
+        model = UserDetail
 
 @admin.register(UserDetail)
-class UserDetailAdmin(admin.ModelAdmin):
-    list_display = ("id", "Name", "Email", "Phone", "Pan", "Account_No", "IFSC_code", "Account_Balance")
-    search_fields = ("Name", "Email", "Phone", "Pan")
-    list_filter = ("IFSC_code",)
+class UserDetailAdmin(ImportExportModelAdmin):
+    resource_class = UserDetailResource
+    list_display = ('Name', 'Email', 'Phone', 'Pan', 'Account_No', 'IFSC_code')
+    search_fields = ('Name', 'Email', 'Phone', 'Pan')
+
+
+
 
 @admin.register(Deposit)
-class DepositAdmin(admin.ModelAdmin):
-    list_display = ("id", "user", "BankName", "QR")
-    search_fields = ("BankName", "user__Email")
+class DepositAdmin(ImportExportModelAdmin):
+    list_display = ('BankName', 'QR')
+    search_fields = ('BankName',)
 
 @admin.register(withdrawal)
-class WithdrawalAdmin(admin.ModelAdmin):
-    list_display = ("id", "user", "Name", "Amount", "Status")
-    search_fields = ("Name", "user__Email")
-    list_filter = ("Status",)
+class withdrawalAdmin(ImportExportModelAdmin):
+    list_display = ('Name', 'Amount', 'Status')
+    search_fields = ('Name', 'Amount', 'Status')
 
 @admin.register(DepositAccountDetails)
 class DepositAccountDetailsAdmin(ImportExportModelAdmin):
