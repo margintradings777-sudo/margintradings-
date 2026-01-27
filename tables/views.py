@@ -2,6 +2,16 @@ from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 
+@csrf_exempt
+def withdrawal_view(request):
+    if request.method == "GET":
+        data = list(Withdrawal.objects.values())
+        return JsonResponse(data, safe=False)
+
+    if request.method == "POST":
+        body = json.loads(request.body)
+        Withdrawal.objects.create(**body)
+        return JsonResponse({"status": "created"})
 
 @csrf_exempt
 def login_view(request):
