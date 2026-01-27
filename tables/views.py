@@ -62,15 +62,19 @@ def register_view(request):
     if User.objects.filter(email=email).exists():
         return JsonResponse({"message": "Email already exists"}, status=400)
 
-    user = User.objects.create_user(
-        username=name,
-        email=email,
-        password=password
+    user = UserDetail.objects.create(
+        Name=name,
+        Email=email,
+        Password=make_password(password),   # password hash
+        Phone=phone,
+        Pan=pan,
+        Pan_card_Image=pan_img,
+        Account_No=account_no,
+        IFSC_code=ifsc_code,
+        Cancel_cheque_or_bank_statement=bank_doc,
     )
 
-    return JsonResponse({
-        "message": "User created",
-        "user_id": user.id,
+    return JsonResponse({"message": "User created", "user_id": user.id})
     })
 
 
