@@ -1,8 +1,10 @@
 from django.contrib import admin
-from .models import UserDetail
+from .models import UserDetail, Deposit, Withdrawal, DepositAccountDetails
 
-@admin.register(UserDetail)
-class UserDetailAdmin(admin.ModelAdmin):
+
+@admin.register(Deposit)
+class DepositAdmin(admin.ModelAdmin):
+    pass
     list_display = ("id", "Name", "Email", "Phone", "Pan", "Account_No", "IFSC_code", "Account_Balance")
     search_fields = ("Name", "Email", "Phone", "Pan")
     list_filter = ("IFSC_code",)
