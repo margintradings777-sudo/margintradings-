@@ -3,6 +3,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import json
 
+@csrf_exempt
+def withdrawal_view(request):
+    return JsonResponse({"message": "withdrawal endpoint placeholder"})
 
 @csrf_exempt
 def login_view(request):
