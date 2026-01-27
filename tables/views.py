@@ -20,25 +20,23 @@ def login_view(request):
     if request.method != "POST":
         return JsonResponse({"message": "POST method required"}, status=405)
 
-    import json
     data = json.loads(request.body)
-
     email = data.get("Email")
     password = data.get("Password")
 
     try:
-        user = User.objects.get(email=email)
-        if not user.check_password(password):
-            raise User.DoesNotExist
-    except User.DoesNotExist:
+        user = UserDetail.objects.get(Email=email)
+    except UserDetail.DoesNotExist:
+        return JsonResponse({"message": "Invalid credentials"}, status=401)
+
+    if not check_password(password, user.Password):
         return JsonResponse({"message": "Invalid credentials"}, status=401)
 
     return JsonResponse({
         "user_id": user.id,
-        "name": user.username,
-        "email": user.email,
+        "name": user.Name,
+        "email": user.Email,
     })
-
 
 @csrf_exempt
 def register_view(request):
@@ -80,12 +78,17 @@ def register_view(request):
 
 def profile_view(request, user_id):
     try:
-        user = User.objects.get(id=user_id)
-    except User.DoesNotExist:
+        user = UserDetail.objects.get(id=user_id)
+    except UserDetail.DoesNotExist:
         return JsonResponse({"message": "User not found"}, status=404)
 
     return JsonResponse({
-        "Name": user.username,
-        "Email": user.email,
-        "Phone": "",
+        "Name": user.Name,
+        "Email": user.Email,
+        "Phone": user.Phone,
+        "Pan": user.Pan,
+        "Account_No": user.Account_No,
+        "IFSC_code": user.IFSC_code,
+        "Pan_card_Image": user.Pan_card_Image.url if user.Pan_card_Image else "",
+        "Cancel_cheque_or_bank_statement": user.Cancel_cheque_or_bank_statement.url if user.Cancel_cheque_or_bank_statement else "",
     })
