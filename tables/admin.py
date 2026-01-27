@@ -1,18 +1,22 @@
 from django.contrib import admin
-from import_export import resources
-from import_export.admin import ImportExportModelAdmin
-from .models import Deposit
-from .models import withdrawal, UserDetail, DepositAccountDetails
-
-class UserDetailResource(resources.ModelResource):
-    class Meta:
-        model = UserDetail
+from .models import UserDetail
 
 @admin.register(UserDetail)
-class UserDetailAdmin(ImportExportModelAdmin):
-    resource_class = UserDetailResource
-    list_display = ('Name', 'Email', 'Phone', 'Pan', 'Account_No', 'IFSC_code')
-    search_fields = ('Name', 'Email', 'Phone', 'Pan')
+class UserDetailAdmin(admin.ModelAdmin):
+    list_display = ("id", "Name", "Email", "Phone", "Pan", "Account_No", "IFSC_code", "Account_Balance")
+    search_fields = ("Name", "Email", "Phone", "Pan")
+    list_filter = ("IFSC_code",)
+
+    # edit screen pe easy banane ke liye
+    readonly_fields = ("id",)
+
+    fieldsets = (
+        ("Basic", {"fields": ("Name", "Email", "Phone", "Password")}),
+        ("KYC", {"fields": ("Pan", "Pan_card_Image")}),
+        ("Bank", {"fields": ("Account_No", "IFSC_code", "Cancel_cheque_or_bank_statement")}),
+        ("Wallet", {"fields": ("Account_Balance",)}),
+    )
+
 
 
 
