@@ -1,23 +1,9 @@
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from .models import UserDetail
 import json
-from .models import DepositAccountDetails  # (agar model ka naam alag hai to bata)
 
-@csrf_exempt
-def deposit_account_details_view(request):
-    # public details (same for all users)
-    obj = DepositAccountDetails.objects.last()   # latest record
-    if not obj:
-        return JsonResponse({"message": "No deposit details found"}, status=404)
-
-    return JsonResponse({
-        "Bank_Name": obj.Bank_Name,
-        "Holder_Name": obj.Holder_Name,
-        "Account_No": obj.Account_No,
-        "IFSC": obj.IFSC,
-        "QR": obj.QR.url if obj.QR else ""
-    })
 
 @csrf_exempt
 def withdrawal_view(request):
