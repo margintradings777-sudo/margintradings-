@@ -1,69 +1,35 @@
-from django.contrib.auth.models import User
-from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from .models import UserDetail
-import json
 
-
-@csrf_exempt
-def withdrawal_view(request):
-    return JsonResponse({"message": "withdrawal endpoint placeholder"})
-
-@csrf_exempt
-def login_view(request):
-    if request.method != "POST":
-        return JsonResponse({"message": "POST method required"}, status=405)
-
-    data = json.loads(request.body)
-    email = data.get("Email")
-    password = data.get("Password")
-
+def safe_file_url(request, file_field):
     try:
-        user = User.objects.get(email=email)
-        if not user.check_password(password):
-            raise User.DoesNotExist
-    except User.DoesNotExist:
-        return JsonResponse({"message": "Invalid credentials"}, status=401)
-
-    return JsonResponse({
-        "user_id": user.id,
-        "name": user.username,
-        "email": user.email,
-    })
-
-
-@csrf_exempt
-def register_view(request):
-    if request.method != "POST":
-        return JsonResponse({"message": "POST method required"}, status=405)
-
-    name = request.POST.get("Name")
-    email = request.POST.get("Email")
-    password = request.POST.get("Password")
-
-    if User.objects.filter(email=email).exists():
-        return JsonResponse({"message": "Email already exists"}, status=400)
-
-    user = User.objects.create_user(
-        username=name,
-        email=email,
-        password=password
-    )
-
-    return JsonResponse({
-        "message": "User created",
-        "user_id": user.id
-    })
-
+        if file_field and getattr(file_field, "name", ""):
+            return request.build_absolute_uri(file_field.url)
+    except Exception:
+        pass
+    return ""
 
 def profile_view(request, user_id):
     try:
-        user = User.objects.get(id=user_id)
-    except User.DoesNotExist:
+        user = UserDetail.objects.get(id=user_id)
+    except UserDetail.DoesNotExist:
         return JsonResponse({"message": "User not found"}, status=404)
 
-    return JsonResponse({
-        "Name": user.username,
-        "Email": user.email,
-        "Phone": "",
-    })
+    data = {
+        "Name": getattr(user, "Name", "") or "",
+        "Email": getattr(user, "Email", "") or "",
+        "Phone": getattr(user, "Phone", "") or "",
+
+        # PAN / Bank fields - yaha exact model field name hona chahiye
+        "PAN_No": getattr(user, "PAN_No", "") or "",
+        "Account_No": getattr(user, "Account_No", "") or "",
+        "IFSC_Code": getattr(user, "IFSC_Code", "") or "",
+
+        # Images / documents - yaha bhi model field name exact
+        "PAN_Image": safe_file_url(request, getattr(user, "Pan_card_Image", None) or getattr(user, "PAN_Image", None)),
+        "Bank_Statement": safe_file_url(request, getattr(user, "Cancel_cheque_or_bank_statement", None) or getattr(user, "Bank_Statement", None)),
+
+        "Account_Balance": float(getattr(user, "Account_Balance", 0) or 0),
+    }
+
+    return JsonResponse(data, status=200)
