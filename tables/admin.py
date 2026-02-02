@@ -18,7 +18,10 @@ class UserDetailAdmin(admin.ModelAdmin):
         "Email",
         "Phone",
         "PAN_No",
+        "PAN_Image",
+        "Account_No",
         "IFSC_Code",
+        "Bank_Document",
         "Account_Balance",
     )
     search_fields = ("Name", "Email", "Phone", "PAN_No")
