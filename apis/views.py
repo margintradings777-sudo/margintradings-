@@ -3,8 +3,28 @@ from rest_framework.response import Response
 from .serializers import UserDetailSerializer, DepositSerializer, WithdrawalSerializer, DepositAccountDetailsSerializer
 from tables.models import UserDetail, Deposit, withdrawal, DepositAccountDetails
 from decimal import Decimal
-from django.contrib.auth.hashers import make_password, check_password
 from rest_framework.views import APIView
+from django.contrib.auth.hashers import make_password, check_password
+
+def verify_password(raw_password, stored_password):
+    """
+    Backward compatible:
+    - new users: stored_password is hashed -> check_password works
+    - old users: stored_password was plain -> direct match works
+    """
+    if not raw_password or not stored_password:
+        return False
+
+    # 1) hashed password case
+    try:
+        if check_password(raw_password, stored_password):
+            return True
+    except Exception:
+        pass
+
+    # 2) old plain password case
+    return stored_password == raw_password
+
 
 # =========================
 # USER AUTHENTICATION
@@ -37,17 +57,25 @@ class UserLoginView(generics.GenericAPIView):
 
         try:
             user = UserDetail.objects.get(Email=email)
-            # Use check_password to verify the hashed string
-            if check_password(password, user.Password):
+
+            if verify_password(password, user.Password):
+                # Optional: agar plain tha to hash me convert kardo
+                # (isse future me sab stable rahega)
+                if user.Password == password:
+                    user.Password = make_password(password)
+                    user.save(update_fields=["Password"])
+
                 return Response({
-                    "message": "Login successful", 
-                    "user_id": user.id, 
+                    "message": "Login successful",
+                    "user_id": user.id,
                     "name": user.Name
                 }, status=status.HTTP_200_OK)
-            else:
-                return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
+            return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
         except UserDetail.DoesNotExist:
             return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
 
 class UserProfileView(generics.RetrieveAPIView):
     queryset = UserDetail.objects.all()
@@ -66,7 +94,7 @@ class UserProfileView(generics.RetrieveAPIView):
             raise serializers.ValidationError("User not found.")
 
         # Secure verification for profile viewing
-        if not check_password(password, user.Password):
+        if not verify_password(password, user.Password):
             raise serializers.ValidationError("Invalid password.")
 
         return user
@@ -86,7 +114,7 @@ class UserBalanceView(APIView):
 
         try:
             user = UserDetail.objects.get(pk=user_id)
-            if check_password(password, user.Password):
+            if verify_password(password, user.Password):
                 return Response({
                     "name": user.Name,
                     "account_balance": user.Account_Balance
@@ -104,7 +132,7 @@ class AccountSummaryView(APIView):
 
         try:
             user = UserDetail.objects.get(pk=user_id)
-            if not check_password(password, user.Password):
+            if not verify_password(password, user.Password):
                 return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
             
             recent_deposits = Deposit.objects.filter(user=user).order_by('-id')[:5]
@@ -139,7 +167,7 @@ class WithdrawalCreateView(APIView):
         try:
             user = UserDetail.objects.get(id=user_id)
             
-            if not check_password(password, user.Password):
+            if not verify_password(password, user.Password):
                 return Response({"message": "Invalid password."}, status=status.HTTP_400_BAD_REQUEST)
             
             withdrawal_amount = Decimal(amount)
@@ -189,7 +217,7 @@ class UserBankDetailsUpdateView(generics.UpdateAPIView):
         except UserDetail.DoesNotExist:
             return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 
-        if not check_password(password, user.Password):
+        if not verify_password(password, user.Password):
             return Response({"error": "Invalid password."}, status=status.HTTP_401_UNAUTHORIZED)
 
         partial = kwargs.pop('partial', False)
