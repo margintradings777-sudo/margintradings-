@@ -1,19 +1,23 @@
 from django.db import models
+from django.contrib.auth.models import User
 
-class UserDetail(models.Model):
-    Name = models.CharField(max_length=200)
-    Email = models.EmailField(unique=True)
-    Password = models.CharField(max_length=128)
-    Phone = models.CharField(max_length=20)
-    Pan = models.CharField(max_length=10, unique=True)
-    Pan_card_Image = models.ImageField(upload_to='pan_cards/')
-    Account_No = models.CharField(max_length=50)
-    IFSC_code = models.CharField(max_length=20)
-    Cancel_cheque_or_bank_statement = models.ImageField(upload_to='bank_documents/')
-    Account_Balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+class CustomerProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+
+    phone = models.CharField(max_length=15, blank=True, null=True)
+
+    pan_no = models.CharField(max_length=10, blank=True, null=True)
+    pan_image = models.ImageField(upload_to="kyc/pan/", blank=True, null=True)
+
+    account_number = models.CharField(max_length=30, blank=True, null=True)
+    ifsc_code = models.CharField(max_length=20, blank=True, null=True)
+
+    bank_document = models.FileField(upload_to="kyc/bank_docs/", blank=True, null=True)  # statement/cheque
+
+    account_balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
 
     def __str__(self):
-        return self.Name
+        return self.user.username
 
         
 # Create your models here.
