@@ -1,11 +1,13 @@
 from rest_framework import serializers
-from tables.models import UserDetail, Deposit, withdrawal, DepositAccountDetails
-from decimal import Decimal
+from tables.models import UserDetail
 
 class UserDetailSerializer(serializers.ModelSerializer):
+    Pan = serializers.CharField(source="PAN_No", required=False, allow_blank=True)
+    IFSC_code = serializers.CharField(source="IFSC_Code", required=False, allow_blank=True)
+
     class Meta:
         model = UserDetail
-        fields = '__all__'
+        fields = "__all__"
         # This prevents the password from being leaked in GET requests
         extra_kwargs = {
             'Password': {'write_only': True}
