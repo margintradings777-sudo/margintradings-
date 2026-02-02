@@ -18,7 +18,7 @@ class UserDetail(models.Model):
     Bank_Document = models.FileField(upload_to="kyc/bank_docs/", blank=True, null=True)
 
     def __str__(self):
-    return self.Email or self.Name or "UserDetail"
+        return self.Email or self.Name or "UserDetail"
 
         
 # Create your models here.
